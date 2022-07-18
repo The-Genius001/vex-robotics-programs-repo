@@ -1,0 +1,148 @@
+#pragma region VEXcode Generated Robot Configuration
+// Make sure all required headers are included.
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include <string.h>
+
+
+#include "vex.h"
+
+using namespace vex;
+
+// Brain should be defined by default
+brain Brain;
+
+
+// START V5 MACROS
+#define waitUntil(condition)                                                   \
+  do {                                                                         \
+    wait(5, msec);                                                             \
+  } while (!(condition))
+
+#define repeat(iterations)                                                     \
+  for (int iterator = 0; iterator < iterations; iterator++)
+// END V5 MACROS
+
+
+// Robot configuration code.
+motor Motor1 = motor(PORT1, ratio6_1, false);
+
+
+
+#pragma endregion VEXcode Generated Robot Configuration
+// Include the V5 Library
+#include "vex.h"
+  
+// Allows for easier use of the VEX Library
+using namespace vex;
+
+// User defined function
+void myblockfunction_set_stats();
+
+int Brain_precision = 0, Console_precision = 0;
+
+float myVariable;
+
+bool on;
+
+// Used to find the format string for printing numbers with the
+// desired number of decimal places
+const char* printToBrain_numberFormat() {
+  // look at the current precision setting to find the format string
+  switch(Brain_precision){
+    case 0:  return "%.0f"; // 0 decimal places (1)
+    case 1:  return "%.1f"; // 1 decimal place  (0.1)
+    case 2:  return "%.2f"; // 2 decimal places (0.01)
+    case 3:  return "%.3f"; // 3 decimal places (0.001)
+    default: return "%f"; // use the print system default for everthing else
+  }
+}
+
+// User defined function
+void myblockfunction_set_stats() {
+  Brain.Screen.setPenColor(white);
+  Brain.Screen.clearScreen();
+  Brain.Screen.setCursor(1, 1);
+  Brain.Screen.print("PRESS anywhere on the screen to start the motor on port 1");
+  Brain.Screen.setCursor(3, 1);
+  if (Brain.Battery.capacity() < 100.0 && Brain.Battery.capacity() > 60.0) {
+    Brain.Screen.print("Battery:");
+    Brain.Screen.setPenColor(green);
+    Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Battery.capacity()));
+  } else if (Brain.Battery.capacity() < 60.0 && Brain.Battery.capacity() > 30.0) {
+    Brain.Screen.print("Battery:");
+    Brain.Screen.setPenColor(yellow);
+    Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Battery.capacity()));
+  } else {
+    Brain.Screen.print("Battery:");
+    Brain.Screen.setPenColor(red);
+    Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Battery.capacity()));
+  }
+  Brain.Screen.setPenColor(white);
+  Brain.Screen.setCursor(5, 1);
+  Brain.Screen.print("motor temp:");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Motor1.temperature(percent)));
+  Brain.Screen.setCursor(7, 1);
+  Brain.Screen.print("motor power (in watts):");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Motor1.power(watt)));
+  Brain.Screen.setCursor(9, 1);
+  Brain.Screen.print("motor torque (in Nm):");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Motor1.torque(Nm)));
+  Brain.Screen.setCursor(11, 1);
+  Brain.Screen.print("motor current:");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Motor1.current(amp)));
+  Brain.Screen.setCursor(3, 29);
+  Brain.Screen.print("Battery volt out:");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Battery.voltage(volt)));
+  Brain.Screen.setCursor(5, 29);
+  Brain.Screen.print("Battery amp out:");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Battery.current(amp)));
+  Brain.Screen.setCursor(7, 29);
+  Brain.Screen.print("screen x:");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Screen.xPosition()));
+  Brain.Screen.setCursor(9, 29);
+  Brain.Screen.print("screen y:");
+  Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Brain.Screen.yPosition()));
+  Brain.Screen.setCursor(11, 29);
+  Brain.Screen.print("press here to start the motor");
+}
+
+// "when started" hat block
+int whenStarted1() {
+  Motor1.setVelocity(700.0, rpm);
+  Motor1.setMaxTorque(120.0, percent);
+  Motor1.setTimeout(0.1, sec);
+  Motor1.setStopping(coast);
+  while (true) {
+    myblockfunction_set_stats();
+    if (Brain.Screen.pressing()) {
+      on = true;
+    }
+    else {
+      on = false;
+    }
+    if (on) {
+      Motor1.spin(forward, 15.0, volt);
+    }
+    else {
+      Motor1.stop();
+    }
+  wait(5, msec);
+  }
+  return 0;
+}
+
+
+int main() {
+  // post event registration
+
+  // set default print color to black
+  printf("\033[30m");
+
+  // wait for rotation sensor to fully initialize
+  wait(30, msec);
+
+  whenStarted1();
+}

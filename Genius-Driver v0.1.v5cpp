@@ -1,0 +1,174 @@
+#pragma region VEXcode Generated Robot Configuration
+// Make sure all required headers are included.
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include <string.h>
+
+
+#include "vex.h"
+
+using namespace vex;
+
+// Brain should be defined by default
+brain Brain;
+
+
+// START V5 MACROS
+#define waitUntil(condition)                                                   \
+  do {                                                                         \
+    wait(5, msec);                                                             \
+  } while (!(condition))
+
+#define repeat(iterations)                                                     \
+  for (int iterator = 0; iterator < iterations; iterator++)
+// END V5 MACROS
+
+
+// Robot configuration code.
+controller Controller1 = controller(primary);
+motor back_left_motor = motor(PORT1, ratio18_1, false);
+
+motor back_right_motor = motor(PORT2, ratio18_1, true);
+
+motor front_right_motor = motor(PORT4, ratio18_1, true);
+
+motor front_left_motor = motor(PORT6, ratio18_1, false);
+
+optical Optical20 = optical(PORT20);
+motor flywheel = motor(PORT7, ratio6_1, false);
+
+
+// define variable for remote controller enable/disable
+bool RemoteControlCodeEnabled = true;
+
+
+
+
+#pragma endregion VEXcode Generated Robot Configuration
+
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       {author}                                                  */
+/*    Created:      {date}                                                    */
+/*    Description:  a program for a robot                                               */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+
+// Include the V5 Library
+#include "vex.h"
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+// Allows for easier use of the VEX Library
+using namespace vex;
+
+//!!!! make sure that all perimeters are declaired on any functions printing to the a screen or console!!!!
+int main() {
+  flywheel.setVelocity(700.0, rpm);
+  flywheel.setMaxTorque(120.0, percent);
+  flywheel.setTimeout(0.1, sec);
+  flywheel.setStopping(coast);
+  
+
+  
+
+  while(true) {
+        //Get the raw sums of the X and Y joystick axes
+        double front_left  = (double)(Controller1.Axis3.position(pct) + Controller1.Axis4.position(pct));
+        double back_left   = (double)(Controller1.Axis3.position(pct) - Controller1.Axis4.position(pct));
+        double front_right = (double)(Controller1.Axis3.position(pct) - Controller1.Axis4.position(pct));
+        double back_right  = (double)(Controller1.Axis3.position(pct) + Controller1.Axis4.position(pct));
+        
+        //Find the largest possible sum of X and Y
+        double max_raw_sum = (double)(abs(Controller1.Axis3.position(pct)) + abs(Controller1.Axis4.position(pct)));
+        
+        //Find the largest joystick value
+        double max_XYstick_value = (double)(std::max(abs(Controller1.Axis3.position(pct)),abs(Controller1.Axis4.position(pct))));
+        
+        //The largest sum will be scaled down to the largest joystick value, and the others will be
+        //scaled by the same amount to preserve directionality
+        if (max_raw_sum != 0) {
+            front_left  = front_left / max_raw_sum * max_XYstick_value;
+            back_left   = back_left / max_raw_sum * max_XYstick_value;
+            front_right = front_right / max_raw_sum * max_XYstick_value;
+            back_right  = back_right / max_raw_sum * max_XYstick_value;
+        }
+        
+        //Now to consider rotation
+        //Naively add the rotational axis
+        front_left  = front_left  + Controller1.Axis1.position(pct);
+        back_left   = back_left   + Controller1.Axis1.position(pct);
+        front_right = front_right - Controller1.Axis1.position(pct);
+        back_right  = back_right  - Controller1.Axis1.position(pct);
+        
+        //What is the largest sum, or is 100 larger?
+        max_raw_sum = std::max(std::abs(front_left),std::max(std::abs(back_left),std::max(std::abs(front_right),std::max(std::abs(back_right),100.0))));
+        
+        //Scale everything down by the factor that makes the largest only 100, if it was over
+        front_left  = front_left  / max_raw_sum * 100.0;
+        back_left   = back_left   / max_raw_sum * 100.0;
+        front_right = front_right / max_raw_sum * 100.0;
+        back_right  = back_right  / max_raw_sum * 100.0;
+        
+        //Write the manipulated values out to the motors
+         front_left_motor.spin(fwd,front_left, velocityUnits::pct);
+          back_left_motor.spin(fwd,back_left,  velocityUnits::pct);
+          front_right_motor.spin(fwd,front_right,velocityUnits::pct);
+         back_right_motor.spin(fwd,back_right, velocityUnits::pct);
+
+         //Controller button flywheel thing
+         
+
+
+
+
+    }
+}
+
+
+
+// write notifactions to controller screen
+void conNotes(char title[], char info[]){
+  Controller1.rumble("- - -");
+  Controller1.Screen.clearScreen();
+  Controller1.Screen.setCursor(1, 1);
+  Controller1.Screen.print("------notifacations------");
+  Controller1.Screen.setCursor(2,1);
+  Controller1.Screen.print(title);
+  Controller1.Screen.setCursor(3,1);
+  Controller1.Screen.print(info);
+  
+
+}
+// write things to console
+void consoleOut(char out[]){
+  printf(out);
+}
+
+// write stats to brain
+void writeStats(int page){
+  //  <------------------ device list ------------------>
+  // device0=back_left_motor. device1=back_right_motor. device2=front_right_motor. device3=front_left_motor. 
+  Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("stats page:");
+    Brain.Screen.print(page++);
+  if (page==0){
+    Brain.Screen.setCursor(3,1);
+    Brain.Screen.print("temp:");
+    Brain.Screen.print(back_left_motor.temperature(percent));
+    Brain.Screen.setCursor(4,1);
+    Brain.Screen.print("rmp:");
+    Brain.Screen.print(back_left_motor.velocity(rpm));
+
+  }
+}
+// controller voids
+void onevent_Controller1buttonL1_pressed_0() {
+  flywheel.spin(forward);
+}
+void onevent_Controller1buttonL1_realesed_0() {
+  flywheel.stop();
+}
