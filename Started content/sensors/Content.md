@@ -1,7 +1,5 @@
-# Your first practice
-I would recommend that your first practice you go over the game for this year. You should go over designs of how to overcome the chalanges in the game. On your next practice, you might want to start by building a base. If your in iq you might also want to build the basic robot that vex released for your game. You can find it on the vex website. After you build your base you will want to look back at the game and decide which idea you think is best from the first practice
-
-
+# Your first few practices
+I would recommend that your first practice you go over the game for this year. You should go over designs of how to overcome the chalanges in the game. On your next practice, you might want to start by building a base. If your in iq you might also want to build the basic robot that vex released for your game. You can find it on the vex website. After you build your base you will want to look back at the game and decide which idea you think is best from the first practice. Eg if you liked a flywheel over a catipult because you think it is better, you build that. 
 
 
 
@@ -17,3 +15,7 @@ This sensor has 3 functions. It has LEDs on it to iluminate what is in front of 
 ## buttons
 A red button. Pretty easy to understand. It sends out a output of a 1 or a 0 (true or false). 1 it pressed and 0 is not pressed. This is a 3 wire sensor. If you need help conecting 3 wire sensors, please go to the conections folder.
 
+
+
+
+# Programing(vrc)
